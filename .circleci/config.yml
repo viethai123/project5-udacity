@@ -62,12 +62,12 @@ jobs:
             aws configure set region $AWS_DEFAULT_REGION
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $AWS_ECR_URL
             docker build -t project5 .
-            docker tag project5:latest $AWS_ECR/project5:latest
+            docker tag project5:latest $AWS_ECR_URL/project5:latest
       - run:
           name: push-docker-image-to-ecr
           command: |
             #push image
-            docker push $AWS_ECR/project5:latest    
+            docker push $AWS_ECR_URL/project5:latest    
   
   deploy-infrastructure:
     docker:
