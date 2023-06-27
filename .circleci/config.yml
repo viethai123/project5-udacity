@@ -60,14 +60,14 @@ jobs:
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             aws configure set aws_session_token $AWS_SESSION_TOKEN
             aws configure set region $AWS_DEFAULT_REGION
-            aws ecr get-login-password | docker login --username AWS --password-stdin 133834669353.dkr.ecr.us-east-1.amazonaws.com
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 014167832955.dkr.ecr.us-east-1.amazonaws.com
             docker build -t project5 .
             docker tag project5:latest $AWS_ECR_URL/project5:latest
       - run:
           name: push-docker-image-to-ecr
           command: |
             #push image
-            docker push $AWS_ECR_URL/project5:latest    
+            docker push $AWS_ECR_URL/project5:latest
   
   deploy-infrastructure:
     docker:

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: 133834669353.dkr.ecr.us-east-1.amazonaws.com/project5:latest
+        image: 014167832955.dkr.ecr.us-east-1.amazonaws.com/project5:latest
         ports:
           - name: web
             containerPort: 80
