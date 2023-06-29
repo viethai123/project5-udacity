@@ -97,12 +97,13 @@ jobs:
             kubectl version --short --client
       - run:
           name: deploy cluster
-          command: | 
+          command: |
             eksctl create cluster \
             --name k8s-demo \ 
             --region us-east-1 \
             --nodegroup-name k8s-demo \
             --nodes 2
+            aws eks update-kubeconfig --region us-east-1 --name k8s-demo
             kubectl get svc
 
   deploy-config: 
