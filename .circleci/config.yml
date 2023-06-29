@@ -70,33 +70,82 @@ jobs:
   
   deploy-infrastructure:
     docker:
-      - image: python:3.11-rc-alpine
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "requirements.txt" }}
-            - v1-dependencies-
       - run:
-          name: Install dependencies
+          name: Install of dependencies for cluster and workers setup - aws cli
+          command: | 
+            apk add --update tar gzip nodejs npm curl 
+            pip install awscli
+            aws --version
+      - run:
+          name: Install of dependencies for cluster and workers setup - iam authenticator
           command: |
-            apk add --update ansible tar curl
-            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
-            chmod +x ./kubectl
+            curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
+            chmod +x ./aws-iam-authenticator
+            mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            aws-iam-authenticator help
+      - run:
+          name: Install of dependencies for cluster and workers setup - eksctl
+          command: |
             curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
             mv /tmp/eksctl /usr/local/bin
-            eksctl version
+            eksctl --help
       - run:
-          name: deploy cluster
-          command: | 
-            eksctl create cluster \
-            --name k8s-demo \ 
-            --region us-east-1 \
-            --nodegroup-name k8s-demo \
-            --nodes 2 \
-            --ssh-access \
-            --ssh-public-key udapeople \
-            --managed
+          name: Install of dependencies for cluster and workers setup - kubectl
+          command: |
+            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            kubectl version --short --client
+      - run:
+          name: Create cluster and worker nodes
+          command: |
+            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            kubectl version --short --client
+            eksctl create cluster -f ./infrastructure/aws_ekctl_cluster.yaml
+            kubectl get svc
+      - run:
+          name: Update kubectl config 
+          command: |
+            aws eks --region us-east-1 update-kubeconfig --name EKS-bcrypt-cluster
+      - run:
+          name: Apply kubectl deploy manifest
+          command: |
+            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            kubectl version --short --client
+            kubectl apply -f ./manifest/aws_ekctl_deploy_manifest.yaml
+            kubectl get deployments
+      - run:
+          name: Apply kubectl service manifest
+          command: |
+            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            kubectl version --short --client
+            kubectl apply -f ./manifest/aws_ekctl_service_manifest.yaml
+            kubectl get services
+      - run:
+          name: Check kubernetes configuration
+          command: |
+            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            kubectl version --short --client
+            kubectl get pods -o wide
+            kubectl get nodes -o wide
+      - eks-infra-destroy
 
   deploy-config: 
     docker:
