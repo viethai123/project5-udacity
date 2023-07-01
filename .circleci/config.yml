@@ -109,18 +109,14 @@ jobs:
       - run:
           name: Deploy cluster
           command: |
-            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-            mv /tmp/eksctl /usr/local/bin
-            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
-            chmod +x ./kubectl
-            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
-            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
             eksctl create cluster \
             --name k8s-demo \ 
-            --region=us-east-1 \
+            --region us-east-1 \
             --nodegroup-name k8s-demo \
             --nodes 2
-            kubectl get svc
+            --ssh-access \
+            --ssh-public-key udapeople \
+            --managed
       - run:
           name: Update kubectl config 
           command: |
