@@ -78,7 +78,15 @@ jobs:
             - v1-dependencies-{{ checksum "requirements.txt" }}
             - v1-dependencies-
       - run:
-          name: Install dependencies
+          name: Iam authenticator
+          command: |
+            curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
+            chmod +x ./aws-iam-authenticator
+            mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            aws-iam-authenticator help
+      - run:
+          name: Setup eksctl
           command: |
             apk add --update ansible tar curl
             curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
@@ -86,7 +94,7 @@ jobs:
             eksctl --help
             eksctl version
       - run:
-          name: Install of dependencies for cluster and workers setup - kubectl
+          name: Setup kubectl
           command: |
             curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
             chmod +x ./kubectl
@@ -94,7 +102,7 @@ jobs:
             echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
             kubectl version --short --client
       - run:
-          name: deploy cluster
+          name: Deploy cluster
           command: |
             curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021-04-12/bin/linux/amd64/kubectl
             chmod +x ./kubectl
