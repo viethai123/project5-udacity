@@ -120,9 +120,9 @@ jobs:
             --nodes 2
             kubectl get svc
       - run:
-        name: Update kubectl config 
-        command: |
-          aws eks update-kubeconfig --region us-east-1 --name k8s-demo
+          name: Update kubectl config 
+          command: |
+            aws eks update-kubeconfig --region us-east-1 --name k8s-demo
 
   deploy-config: 
     docker:
