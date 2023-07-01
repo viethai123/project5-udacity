@@ -118,9 +118,11 @@ jobs:
             --region us-east-1 \
             --nodegroup-name k8s-demo \
             --nodes 2
-            aws eks --region us-east-1 update-kubeconfig --name k8s-demo
             kubectl get svc
-
+      - run:
+        name: Update kubectl config 
+        command: |
+          aws eks update-kubeconfig --region us-east-1 --name k8s-demo
   deploy-config: 
     docker:
       - image: 'cimg/base:stable'
@@ -146,7 +148,6 @@ jobs:
           command: |
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
             aws configure set region $AWS_DEFAULT_REGION
       - kubernetes/install-kubectl
       - aws-eks/update-kubeconfig-with-authenticator:
