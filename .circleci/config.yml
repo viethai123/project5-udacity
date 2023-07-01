@@ -123,6 +123,7 @@ jobs:
         name: Update kubectl config 
         command: |
           aws eks update-kubeconfig --region us-east-1 --name k8s-demo
+
   deploy-config: 
     docker:
       - image: 'cimg/base:stable'
