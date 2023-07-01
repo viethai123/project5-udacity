@@ -121,7 +121,6 @@ jobs:
             --ssh-access \
             --ssh-public-key udapeople \
             --managed
-            cat ./bin/sh
       - run:
           name: Update kubectl config 
           command: |
