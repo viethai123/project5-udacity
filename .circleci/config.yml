@@ -78,9 +78,15 @@ jobs:
             - v1-dependencies-{{ checksum "requirements.txt" }}
             - v1-dependencies-
       - run:
+          name: Setup aws cli
+          command: |
+            apk add --update tar gzip nodejs npm curl 
+            pip install awscli
+            aws --version
+      - run:
           name: Iam authenticator
           command: |
-            curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-1.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
+            curl -Lo aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/aws-iam-authenticator
             chmod +x ./aws-iam-authenticator
             mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
             echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
