@@ -115,7 +115,7 @@ jobs:
             echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
             eksctl create cluster \
             --name k8s-demo \ 
-            --region us-east-1 \
+            --region=us-east-1 \
             --nodegroup-name k8s-demo \
             --nodes 2
             kubectl get svc
